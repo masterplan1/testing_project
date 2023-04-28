@@ -9,6 +9,8 @@ class Article extends Model
 {
     use HasFactory;
 
+    public const PAGINATION_PER_PAGE = 10;
+
     public function translations()
     {
         return $this->hasMany(ArticleTranslation::class);

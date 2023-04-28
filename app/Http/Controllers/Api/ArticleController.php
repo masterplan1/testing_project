@@ -20,7 +20,7 @@ class ArticleController extends Controller
 
         $articles = Article::query()->with('translations', function($query) use ($currentLang) {
             return $query->where('language_code', $currentLang);
-        })->orderBy('articles.created_at', 'desc')->paginate();
+        })->orderBy('articles.created_at', 'desc')->paginate(Article::PAGINATION_PER_PAGE);
 
         return $articles;
     }
@@ -50,9 +50,9 @@ class ArticleController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Article $article)
+    public function show(string $id)
     {
-        return [$article, $article->translations];
+        return Article::where('id', $id)->with('translations')->get();
     }
 
     /**
