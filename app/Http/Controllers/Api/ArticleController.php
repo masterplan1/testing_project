@@ -18,16 +18,9 @@ class ArticleController extends Controller
     {
         $currentLang = app()->getLocale();
 
-        $articles = Article::query()->select([
-                'articles.id AS a_id',
-                'articles.created_at AS a_created_at',
-                'articles.updated_at as a_updated_at',
-                'at.*'
-            ])
-            ->join('article_translations AS at', 'article_id', '=', 'articles.id')
-            ->where('at.language_code', $currentLang)
-            ->orderBy('articles.created_at', 'desc')
-            ->paginate();
+        $articles = Article::query()->with('translations', function($query) use ($currentLang) {
+            return $query->where('language_code', $currentLang);
+        })->orderBy('articles.created_at', 'desc')->paginate();
 
         return $articles;
     }
