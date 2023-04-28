@@ -80,9 +80,13 @@ class ArticleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Article $article)
+    public function destroy(string $ids)
     {
-        $article->delete();
+        // on frontend side should be something like this:
+        // var query_string = '../api/articles/1,2,3...'
+        $ids = explode(',', $ids);
+        DB::table('articles')->whereIn('id', $ids)->delete(); 
+        return response('');
     }
 
     

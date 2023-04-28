@@ -21,5 +21,3 @@ use Illuminate\Support\Facades\Route;
 // });
 
 Route::apiResource('articles', ArticleController::class);
-
-Route::post('mass_delete', [DeleteArticlesController::class, 'massDelete']);
