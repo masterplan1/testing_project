@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('article_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('article_id');
-            $table->string('title', 255)->unique();
+            $table->foreignId('article_id')->references('id')->on('articles')->onDelete('cascade');
+            $table->string('title', 255)->index();
             $table->text('text');
             $table->enum('language_code', ['en', 'ar', 'ja']);
             $table->timestamps();
-            $table->index('title');
+            $table->unique(['title', 'language_code']);
         });
     }
 

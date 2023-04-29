@@ -18,7 +18,8 @@ class ArticleController extends Controller
     public function __construct(
         private ArticleService $articleService,
         private TranslationService $translationService
-    ){}
+    ) {
+    }
     /**
      * Display a listing of the resource.
      */
@@ -26,7 +27,7 @@ class ArticleController extends Controller
     {
         $currentLang = app()->getLocale();
 
-        $articles = Article::query()->with('translations', function($query) use ($currentLang) {
+        $articles = Article::query()->with('translations', function ($query) use ($currentLang) {
             return $query->where('language_code', $currentLang);
         })->orderBy('articles.created_at', 'desc')->paginate(Article::PAGINATION_PER_PAGE);
 
@@ -38,9 +39,10 @@ class ArticleController extends Controller
      */
     public function store(StoreArticleRequest $request)
     {
-        $article = $this->articleService->store($request->validated());
-
-        $this->translationService->make($article);
+        DB::beginTransaction();
+        $article = $this->articleService->store();
+        $this->translationService->make($article, $request->validated());
+        DB::commit();
 
         return $article;
     }
@@ -58,12 +60,12 @@ class ArticleController extends Controller
      */
     public function update(UpdateArticleRequest $request, Article $article)
     {
-        $article = $this->articleService->update($request->validated(), $article);
-
-        $this->translationService->make($article);
-
+        DB::beginTransaction();
+        $this->articleService->update($article);
+        $this->translationService->make($article, $request->validated());
+        DB::commit();
+        $article->refresh();
         return $article;
-        
     }
 
     /**
@@ -74,9 +76,12 @@ class ArticleController extends Controller
         // on frontend side should be something like this:
         // var query_string = '../api/articles/1,2,3...'
         $ids = explode(',', $ids);
-        DB::table('articles')->whereIn('id', $ids)->delete(); 
+
+        DB::transaction(function () use ($ids) {
+            DB::table('article_translations')->whereIn('article_id', $ids)->delete();
+            DB::table('articles')->whereIn('id', $ids)->delete();
+        });
+
         return response('');
     }
-
-    
 }

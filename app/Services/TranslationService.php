@@ -9,26 +9,22 @@ class TranslationService
 {
   private const LANGS = ['en', 'ar', 'ja'];
 
-  public function make(Article $article) {
-    foreach(self::LANGS as $lang){
-
-      $translatedBody = $this->translateBody($lang, $article);
-      $translatedTitle = $this->translateTitle($lang, $article);
-
+  public function make(Article $article, array $data)
+  {
+    foreach ($this->prepareInputData($data) as $lang => $dataByLang) {
       ArticleTranslation::updateOrCreate(
-        ['article_id' => $article->id, 'language_code' => $lang], 
-        ['title' => $translatedTitle, 'text' => $translatedBody]
+        ['article_id' => $article->id, 'language_code' => $lang],
+        ['title' => $dataByLang['title'], 'text' => $dataByLang['text']]
       );
     }
   }
 
-  private function translateBody($lang, $article){
-    // some translation logic
-    return fake()->text();
-  }
-
-  private function translateTitle($lang, $article){
-    // some translation logic
-    return fake()->name();
+  private function prepareInputData(array $data): array
+  {
+    $result = [];
+    foreach (self::LANGS as $lang) {
+      $result[$lang] = ['title' => $data['title_' . $lang], 'text' => $data['text_' . $lang]];
+    }
+    return $result;
   }
 }

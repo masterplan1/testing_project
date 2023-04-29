@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Services;
 
@@ -6,16 +6,15 @@ use App\Models\Article;
 
 class ArticleService
 {
-  public function store(array $articleData): Article
+  public function store(): Article
   {
-    $article = Article::create($articleData);
-
+    $article = Article::create([]);
     return $article;
   }
 
-  public function update(array $articleData, Article $article): Article
+  public function update(Article $article): Article
   {
-    $article->update($articleData);
+    $article->update([]);
     return $article;
   }
 }
